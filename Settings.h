@@ -1,22 +1,10 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <Arduino.h>
 #include "Config.h"
 
-struct PadSettings {
-    PadType type;
-    uint8_t midiHeadNote;
-    uint8_t midiRimNote;
-    uint8_t sensitivity;    // 0-127
-    uint16_t threshold;     // 0-1023
-    uint8_t scantime;       // в миллисекундах
-    uint8_t masktime;       // ms маскирование
-    CurveType curve;
-    uint8_t xtalk;
-    bool rimMute;
-    bool twoZoneMode;
-    bool muteByPiezo;
-};
+#define SETTINGS_ADDR 0
 
 struct HiHatSettings {
     uint8_t ccClosed;
@@ -25,13 +13,30 @@ struct HiHatSettings {
     bool invert;
 };
 
+struct PadSettings {
+    PadType type;
+    uint8_t midiHeadNote;
+    uint8_t midiRimNote;
+    uint8_t sensitivity;
+    uint16_t threshold;
+    uint16_t scantime;
+    uint16_t masktime;
+    uint8_t curve;
+
+    uint8_t xtalkThreshold;     // Порог XTALK (0-127)
+    uint16_t xtalkCancelTime;   // Время отмены XTALK в мс
+
+    bool rimMute;
+    bool twoZoneMode;
+    bool muteByPiezo;
+};
+
 struct Settings {
     uint8_t magic;
     PadSettings pads[NUM_JACKS];
     HiHatSettings hihat;
 };
 
-// Прототипы
 void initSettings(Settings &settings);
 void saveSettings(Settings &settings);
 void loadSettings(Settings &settings);

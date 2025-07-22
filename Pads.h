@@ -10,6 +10,8 @@ struct PadStatus {
     bool rimPressed;
     unsigned long lastHitTimeHead;
     unsigned long lastHitTimeRim;
+    unsigned long lastTriggerTime; // время последнего срабатывания головы или рима (для XTALK)
+    bool activeTrigger;            // флаг, что пэд в данный момент активен (для XTALK)
 };
 
 // Прототипы

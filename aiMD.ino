@@ -19,6 +19,7 @@ bool debugMode = false;
 bool editingParam = false;
 unsigned long lastActivity = 0;
 uint8_t menuParamIndex = 0;
+uint8_t xtalkMenuParamIndex = 0;
 uint8_t editPadIndex = 0;
 bool lcdNeedsUpdate = true;
 
@@ -68,14 +69,14 @@ void loop() {
             case UI_EDIT_PAD:
                 displayPadEditMenu(deviceSettings, editPadIndex, menuParamIndex, editingParam, lcdNeedsUpdate);
                 break;
-            case UI_CONFIRM_RESET:
-                displayConfirmReset();
-                break;
             case UI_EDIT_HIHAT:
                 displayHiHatEditMenu(deviceSettings.hihat, hiHatMenuIndex, editingHiHatParam, lcdNeedsUpdate);
                 break;
             case MENU_EDIT_XTALK:
-                
+                displayXtalkMenu(deviceSettings, xtalkPadIndex, xtalkMenuParamIndex, editingXtalk);
+                break;
+            case UI_CONFIRM_RESET:
+                displayConfirmReset();
                 break;
         }
         lcdNeedsUpdate = false;
