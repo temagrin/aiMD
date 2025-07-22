@@ -1,38 +1,110 @@
-#include <LiquidCrystal_I2C.h>
+
 #include "Config.h"
 #include "Mux.h"
 #include "Pads.h"
 #include "Buttons.h"
-#include "LCD_UI.h"
 #include "MIDISender.h"
 #include "Settings.h"
 #include "HiHatPedal.h"
+#include "UIAction.h"
+#include "LCD_UI.h"
 
 
-// Адрес и размеры LCD
-LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// Глобальные переменные
-Settings deviceSettings;
-PadStatus padStatus[NUM_JACKS];
-bool debugMode = false;
-bool editingParam = false;
-unsigned long lastActivity = 0;
-uint8_t menuParamIndex = 0;
-uint8_t xtalkMenuParamIndex = 0;
-uint8_t editPadIndex = 0;
-bool lcdNeedsUpdate = true;
-
-uint8_t hiHatMenuIndex = 0;
-bool editingHiHatParam = false;
-
-uint8_t xtalkPadIndex = 0;
-bool editingXtalk = false;
-
-uint8_t mainMenuSelection = 0;
 
 UIState uiState = UI_MAIN;
-int8_t buttonState = 0;
+bool lcdNeedsUpdate = true;
+bool editingParam = false;
+uint8_t menuParamIndex = 0;
+uint8_t editPadIndex = 0;
+uint8_t mainMenuSelection = 0;
+
+Settings deviceSettings;
+PadStatus padStatus[NUM_JACKS];
+
+MainMenu mainMenu(mainMenuSelection, uiState, lcdNeedsUpdate);
+EditPadMenu editPadMenu(
+    deviceSettings,         // Settings &deviceSettings
+    editPadIndex,           // bool &editingPadParam
+    menuParamIndex, 
+    editingParam, 
+    uiState, 
+    lcdNeedsUpdate, 
+    lcd
+);
+EditHiHatMenu editHiHatMenu(
+    deviceSettings,          // Settings &deviceSettings
+    editingHiHatParam,       // bool &editingHiHatParam
+    hiHatMenuIndex,          // uint8_t &hiHatMenuIndex
+    uiState,                 // UIState &uiState
+    lcdNeedsUpdate,          // bool &lcdNeedsUpdate
+    lcd                      // LiquidCrystal_I2C &lcd
+);
+EditXtalkMenu editXtalkMenu(
+    deviceSettings,          // Settings &deviceSettings
+    editingXtalk,            // bool &editingXtalk
+    xtalkPadIndex,           // uint8_t &xtalkPadIndex
+    xtalkMenuParamIndex,     // uint8_t &xtalkMenuParamIndex
+    uiState,                 // UIState &uiState
+    lcdNeedsUpdate,          // bool &lcdNeedsUpdate
+    lcd                      // LiquidCrystal_I2C &lcd
+);
+ConfirmResetMenu confirmResetMenu(
+    uiState,                 // UIState &uiState
+    lcdNeedsUpdate,          // bool &lcdNeedsUpdate
+    resetYesSelected,        // bool &resetYesSelected
+    lcd,                     // LiquidCrystal_I2C &lcd
+    deviceSettings           // Settings &deviceSettings
+);
+
+MenuBase *currentMenu = &mainMenu;
+
+UIAction mapButtonToAction(int8_t button, bool isEditing) {
+  if (isEditing) {
+    switch (button) {
+      case 1: return ACT_EDIT_PARAM_INCREASE;
+      case 3: return ACT_EDIT_PARAM_DECREASE;
+      case 4: return ACT_EDIT_PARAM_INCREASE;
+      case 2: return ACT_EDIT_PARAM_DECREASE;
+      case 5: return ACT_SAVE;
+      default: return ACT_BACK;
+    }
+  } else {
+    switch (button) {
+      case 1: return ACT_MOVE_ACTIVE_ITEM_PREV;
+      case 3: return ACT_MOVE_ACTIVE_ITEM_NEXT;
+      case 4: return ACT_MOVE_PARAM_NEXT;
+      case 2: return ACT_BACK;
+      case 5: return ACT_SAVE;
+      default: return ACT_BACK;
+    }
+  }
+}
+
+void processUI(int8_t buttonState) {
+  if (buttonState == 0) return;
+
+  bool isEditing = editingParam; // расширьте проверку для каждого меню при необходимости
+  UIAction action = mapButtonToAction(buttonState, isEditing);
+
+  if (currentMenu)
+    currentMenu->handleAction(action);
+
+  if (lcdNeedsUpdate) {
+    if (currentMenu) currentMenu->render();
+    lcdNeedsUpdate = false;
+  }
+
+  switch (uiState) {
+    case UI_MAIN: currentMenu = &mainMenu; break;
+    case UI_EDIT_PAD: currentMenu = &editPadMenu; break;
+    case UI_EDIT_HIHAT: currentMenu = &editHiHatMenu; break;
+    case UI_EDIT_XTALK: currentMenu = &editXtalkMenu; break;
+    case UI_CONFIRM_RESET: currentMenu = &confirmResetMenu; break;
+    default: currentMenu = &mainMenu; break;
+  }
+}
+
 
 void setupPins() {
   pinMode(MUX_S0, OUTPUT);
@@ -40,51 +112,26 @@ void setupPins() {
   pinMode(MUX_S2, OUTPUT);
   pinMode(MUX_S3, OUTPUT);
   
-  pinMode(BUTTONS_PIN, INPUT);    // Кнопки подключены к А0, аналоговый вход
-  pinMode(HIHAT_PEDAL_PIN, INPUT); // Педаль хайхета на A6, аналоговый вход
-  // Если понадобятся другие пины — добавьте здесь их настройку
+  pinMode(BUTTONS_PIN, INPUT);    
+  pinMode(HIHAT_PEDAL_PIN, INPUT);
 }
 
-// Arduino setup
 void setup() {
     setupPins();
     Serial.begin(MIDI_BAUD);
-    delay(10);
-    lcdInit();
+    delay(10);    
     loadSettings(deviceSettings);
-    displayMainMenu(mainMenuSelection);
 }
 
-// Arduino main loop
 void loop() {
     updateButtonState(buttonState);
     processUI(deviceSettings, padStatus, buttonState, debugMode,
               editingParam, menuParamIndex, editPadIndex, lastActivity, uiState, lcdNeedsUpdate);
-
-    if (lcdNeedsUpdate) {
-        switch(uiState) {
-            case UI_MAIN:
-                displayMainMenu(mainMenuSelection);
-                break;
-            case UI_EDIT_PAD:
-                displayPadEditMenu(deviceSettings, editPadIndex, menuParamIndex, editingParam, lcdNeedsUpdate);
-                break;
-            case UI_EDIT_HIHAT:
-                displayHiHatEditMenu(deviceSettings.hihat, hiHatMenuIndex, editingHiHatParam, lcdNeedsUpdate);
-                break;
-            case UI_EDIT_XTALK:
-                displayXtalkMenu(deviceSettings, xtalkPadIndex, xtalkMenuParamIndex, editingXtalk);
-                break;
-            case UI_CONFIRM_RESET:
-                displayConfirmReset();
-                break;
-        }
-        lcdNeedsUpdate = false;
-    }
-
+    
     for (uint8_t i = 0; i < NUM_JACKS; i++) {
         scanPad(deviceSettings.pads[i], padStatus[i], i);
     }
     processHiHatPedal(deviceSettings.hihat);
     delay(1);
+
 }

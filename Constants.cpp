@@ -6,7 +6,7 @@ const char* hiHatParamNames[HIHAT_NUM_PARAMS] = {
 };
 
 const char* allParamNames[NUM_TOTAL_PAD_PARAMS] = {
-  "Type", "HeadMidi", "RimMidi", "Sens", "Thresh", "RimMute", "TwoZone", "MutePiezo"
+  "Type", "HeadMidi", "Sens", "Thresh", "Curve", "RimMidi", "RimMute", "TwoZone", "MutePiezo"
 };
 
 const PadType allPadTypes[] = { PAD_DISABLED, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };
