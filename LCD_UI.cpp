@@ -18,12 +18,6 @@ extern bool debugMode;
 extern unsigned long lastActivity;
 extern int8_t buttonState;
 
-static uint8_t hiHatMenuIndex = 0;
-static bool editingHiHatParam = false;
-
-static bool editingXtalk = false;
-static uint8_t xtalkPadIndex = 0;
-
 static bool resetYesSelected = true; // Для UI_CONFIRM_RESET
 
 // Объявление прототипов функций для использования внутри LCD_UI.cpp
@@ -57,7 +51,7 @@ void displayMainMenu(uint8_t selectedItem) {
 
   const char* menuItems[MENU_ITEMS_COUNT] = {
     "Toggle Debug Mode",
-    "Edit Pads",
+    "Edit Inputs",
     "Edit HiHat Pedal",
     "Edit XTALK"
   };
@@ -94,7 +88,7 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
   const PadSettings &ps = deviceSettings.pads[padIdx];
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Pad ");
+  lcd.print("Input ");
   lcd.print(padIdx + 1);
 
   uint8_t currentParamIndices[NUM_TOTAL_PAD_PARAMS]; // NUM_TOTAL_PAD_PARAMS из Config.h

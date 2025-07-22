@@ -24,9 +24,9 @@ void initSettings(Settings &settings) {
 }
 
 void saveSettings(Settings &settings) {
-    settings.magic = EEPROM_MAGIC;  // Гарантируем выставление магии
+    settings.magic = EEPROM_MAGIC;   // гарантируем правильное значение
     EEPROM.put(SETTINGS_ADDR, settings);
-    delay(10);
+    delay(10);                       // даём время на запись (важно)
 }
 
 void loadSettings(Settings &settings) {

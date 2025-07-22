@@ -6,8 +6,14 @@
 #include "Pads.h"
 
 extern uint8_t mainMenuSelection;
+extern uint8_t hiHatMenuIndex;
+extern bool editingHiHatParam;
+extern uint8_t xtalkPadIndex;
+extern bool editingXtalk;
+
 
 void lcdInit();
+void displayHiHatEditMenu(const HiHatSettings &hihat, uint8_t menuIndex, bool editing, bool &lcdNeedsUpdate);
 void displayMainMenu(uint8_t selectedItem);
 void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t menuParamIndex, bool editingParam, bool &lcdNeedsUpdate);
 void displayConfirmReset();

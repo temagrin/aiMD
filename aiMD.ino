@@ -22,6 +22,12 @@ uint8_t menuParamIndex = 0;
 uint8_t editPadIndex = 0;
 bool lcdNeedsUpdate = true;
 
+uint8_t hiHatMenuIndex = 0;
+bool editingHiHatParam = false;
+
+uint8_t xtalkPadIndex = 0;
+bool editingXtalk = false;
+
 uint8_t mainMenuSelection = 0;
 
 UIState uiState = UI_MAIN;
@@ -44,7 +50,7 @@ void setup() {
     Serial.begin(MIDI_BAUD);
     delay(10);
     lcdInit();
-    initSettings(deviceSettings);
+    loadSettings(deviceSettings);
     displayMainMenu(mainMenuSelection);
 }
 
@@ -65,7 +71,12 @@ void loop() {
             case UI_CONFIRM_RESET:
                 displayConfirmReset();
                 break;
-            // Добавьте другие экраны если необходимо
+            case UI_EDIT_HIHAT:
+                displayHiHatEditMenu(deviceSettings.hihat, hiHatMenuIndex, editingHiHatParam, lcdNeedsUpdate);
+                break;
+            case MENU_EDIT_XTALK:
+                
+                break;
         }
         lcdNeedsUpdate = false;
     }
