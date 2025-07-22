@@ -83,6 +83,13 @@ void displayMainMenu(uint8_t selectedItem) {
   }
 }
 
+static const CurveType allowedCurves[] = {
+    CURVE_LINEAR,
+    CURVE_EXPONENTIAL,
+    CURVE_LOG,
+    CURVE_MAX_VELOCITY
+};
+
 // --- Pad Edit Menu Display ---
 void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t menuParamIdx, bool editingParam, bool &lcdNeedsUpdateRef) {
   const PadSettings &ps = deviceSettings.pads[padIdx];
@@ -99,6 +106,7 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
   currentParamIndices[numAvailableParams++] = PARAM_HEAD_MIDI;
   currentParamIndices[numAvailableParams++] = PARAM_SENSITIVITY;
   currentParamIndices[numAvailableParams++] = PARAM_THRESHOLD;
+  currentParamIndices[numAvailableParams++] = PARAM_CURVE;
 
   if (muxJackMap[padIdx][1] != -1) { // muxJackMap из Mux.h
     currentParamIndices[numAvailableParams++] = PARAM_RIM_MIDI;
@@ -142,6 +150,20 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
       lcd.setCursor(9, 1);
       lcd.print(ps.threshold);
       break;
+    case PARAM_CURVE: {
+      const char* curveNames[] = {"Lin", "Exp", "Log", "MaxV"};
+      uint8_t curveIndex = 0;
+      // Найдите индекс текущей кривой в массиве allowedCurves
+      for(uint8_t i=0; i < sizeof(curveNames)/sizeof(curveNames[0]); i++) {
+          if (deviceSettings.pads[padIdx].curve == allowedCurves[i]) {
+              curveIndex = i;
+              break;
+          }
+      }
+      lcd.setCursor(9, 1);
+      lcd.print(curveNames[curveIndex]);
+      break;
+    }
     case PARAM_RIM_MUTE:
       lcd.setCursor(9, 1);
       lcd.print(ps.rimMute ? "On" : "Off");
@@ -415,6 +437,32 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
               if (increment) { if (ps.threshold == 1023) ps.threshold = 0; else ps.threshold++; }
               else { if (ps.threshold == 0) ps.threshold = 1023; else ps.threshold--; }
               break;
+            case PARAM_CURVE: {
+                PadType allowedCurves[] = {CURVE_LINEAR, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_MAX_VELOCITY};
+                uint8_t curveCount = sizeof(allowedCurves) / sizeof(allowedCurves[0]);
+                int8_t curCurveIndex = -1;
+                for (uint8_t i = 0; i < curveCount; i++) {
+                    if (allowedCurves[i] == ps.curve) {
+                        curCurveIndex = i;
+                        break;
+                    }
+                }
+                if (curCurveIndex == -1)
+                    curCurveIndex = 0;
+
+                if (increment) {
+                    curCurveIndex++;
+                    if (curCurveIndex >= curveCount)
+                        curCurveIndex = 0;
+                } else {
+                    if (curCurveIndex == 0)
+                        curCurveIndex = curveCount - 1;
+                    else
+                        curCurveIndex--;
+                }
+                ps.curve = allowedCurves[curCurveIndex];
+                break;
+            }
             case PARAM_RIM_MUTE:
               ps.rimMute = !ps.rimMute;
               break;

@@ -34,14 +34,14 @@
 // --- Enums ---
 
 enum PadType { PAD_DISABLED=0, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };
-enum CurveType { CURVE_LINEAR=0, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_CUSTOM};
+enum CurveType { CURVE_LINEAR=0, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_MAX_VELOCITY};
 
 enum MainMenuItems {
     MENU_EDIT_PADS = 0,
     MENU_EDIT_HIHAT,
     MENU_EDIT_XTALK,
-    MENU_RESET_DEFAULTS, // <-- Добавьте этот пункт
-    MENU_ITEMS_COUNT     // <-- Обязательно должен быть последним, чтобы считать количество
+    MENU_RESET_DEFAULTS, 
+    MENU_ITEMS_COUNT  
 };
 
 enum UIState {
@@ -66,6 +66,7 @@ enum PadParam {
   PARAM_RIM_MIDI,
   PARAM_SENSITIVITY,
   PARAM_THRESHOLD,
+  PARAM_CURVE,
   PARAM_RIM_MUTE,
   PARAM_TWO_ZONE_MODE,
   PARAM_MUTE_BY_PIEZO,

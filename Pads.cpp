@@ -9,15 +9,29 @@ extern Settings deviceSettings;         // глобальные настройк
 
 static uint8_t applyCurve(CurveType curve, uint16_t input, uint8_t sensitivity) {
     float norm = constrain(input / 1023.0f, 0.0f, 1.0f);
-    norm *= (sensitivity / 127.0f);
-    float outV = 0;
+
     switch (curve) {
-    case CURVE_LINEAR:      outV = norm; break;
-    case CURVE_EXPONENTIAL: outV = pow(norm, 2.0f); break;
-    case CURVE_LOG:         outV = (norm > 0) ? (log10(norm * 9.0f + 1) / log10(10)) : 0; break;
-    case CURVE_CUSTOM:      outV = norm; break;
+    case CURVE_LINEAR:      
+        norm *= (sensitivity / 127.0f);
+        return (uint8_t)(constrain(norm * 127.0f, 1, 127));
+
+    case CURVE_EXPONENTIAL:
+        norm = pow(norm, 2.0f) * (sensitivity / 127.0f);
+        return (uint8_t)(constrain(norm * 127.0f, 1, 127));
+
+    case CURVE_LOG:
+        norm = (norm > 0) ? (log10(norm * 9.0f + 1) / log10(10)) : 0;
+        norm *= (sensitivity / 127.0f);
+        return (uint8_t)(constrain(norm * 127.0f, 1, 127));
+
+
+    case CURVE_MAX_VELOCITY:
+        return 127;
+
+    default:
+        norm *= (sensitivity / 127.0f);
+        return (uint8_t)(constrain(norm * 127.0f, 1, 127));
     }
-    return (uint8_t)(constrain(outV * 127.0f, 1, 127));
 }
 
 
