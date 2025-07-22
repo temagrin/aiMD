@@ -36,16 +36,16 @@
 enum PadType { PAD_DISABLED=0, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };
 enum CurveType { CURVE_LINEAR=0, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_CUSTOM};
 
-enum MainMenuItem {
-  MENU_DEBUG_TOGGLE = 0,
-  MENU_EDIT_PADS,
-  MENU_EDIT_HIHAT,
-  MENU_EDIT_XTALK,
-  MENU_ITEMS_COUNT
+enum MainMenuItems {
+    MENU_EDIT_PADS = 0,
+    MENU_EDIT_HIHAT,
+    MENU_EDIT_XTALK,
+    MENU_RESET_DEFAULTS, // <-- Добавьте этот пункт
+    MENU_ITEMS_COUNT     // <-- Обязательно должен быть последним, чтобы считать количество
 };
 
 enum UIState {
-    UI_MAIN,
+    UI_MAIN = 0,
     UI_EDIT_PAD,
     UI_EDIT_HIHAT,
     UI_EDIT_XTALK,

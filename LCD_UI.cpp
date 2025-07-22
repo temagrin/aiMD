@@ -50,10 +50,10 @@ void displayMainMenu(uint8_t selectedItem) {
   lcd.clear();
 
   const char* menuItems[MENU_ITEMS_COUNT] = {
-    "Toggle Debug Mode",
-    "Edit Inputs",
-    "Edit HiHat Pedal",
-    "Edit XTALK"
+    "Inputs",
+    "HiHat Pedal",
+    "XTALK",
+    "Reset Defaults"
   };
 
   // Отображаем меню с прокруткой для 16x2 LCD
@@ -165,6 +165,7 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
 
 void displayHiHatEditMenu(const HiHatSettings &hihat, uint8_t menuIndex, bool editing, bool &lcdNeedsUpdateRef) {
   lcd.clear();
+  delay(3); 
   lcd.setCursor(0, 0);
   lcd.print("HiHat Setting");
   lcd.setCursor(0, 1);
@@ -196,6 +197,7 @@ void displayHiHatEditMenu(const HiHatSettings &hihat, uint8_t menuIndex, bool ed
 void displayXtalkMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t menuParamIndex, bool editing) {
     const PadSettings &ps = deviceSettings.pads[padIdx];
     lcd.clear();
+    delay(3); 
     lcd.setCursor(0, 0);
     lcd.print("XTALK Pad ");
     lcd.print(padIdx + 1);
@@ -218,11 +220,16 @@ void displayXtalkMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t me
 
 // --- Confirm Reset Display ---
 void displayConfirmReset() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcdPrintCentered("Reset to Defaults?");
-  lcd.setCursor(0, 1);
-  lcd.print("> YES    NO");
+    lcd.clear();
+    delay(3);
+    lcd.setCursor(0, 0);
+    lcdPrintCentered("Reset to Defaults?");
+    lcd.setCursor(0, 1);
+    if (resetYesSelected) {
+        lcd.print("> YES    NO ");
+    } else {
+        lcd.print("  YES    >NO");
+    }
 }
 
 
@@ -274,12 +281,12 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
         lcdNeedsUpdateRef = true;
       } else if (buttonStateRef == 5) { // SELECT
         switch(mainMenuSelection) {
-          case MENU_DEBUG_TOGGLE:
-            debugModeRef = !debugModeRef;
-            if (debugModeRef) Serial.begin(DEBUG_BAUD);
-            else Serial.begin(MIDI_BAUD);
-            lcdNeedsUpdateRef = true;
-            break;
+          // case MENU_DEBUG_TOGGLE:
+          //   debugModeRef = !debugModeRef;
+          //   if (debugModeRef) Serial.begin(DEBUG_BAUD);
+          //   else Serial.begin(MIDI_BAUD);
+          //   lcdNeedsUpdateRef = true;
+          //   break;
           case MENU_EDIT_PADS:
             uiStateRef = UI_EDIT_PAD;
             editPadIndexRef = 0;
@@ -298,6 +305,10 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
             xtalkPadIndex = 0; // Сброс индекса пэда для XTALK при входе
             editingXtalk = false; // Убедиться, что не в режиме редактирования
             lcdNeedsUpdateRef = true;
+            break;
+          case MENU_RESET_DEFAULTS: // <-- Добавьте этот новый кейс
+            uiStateRef = UI_CONFIRM_RESET; // Переход в состояние подтверждения сброса
+            lcdNeedsUpdateRef = true;      // Обновить экран
             break;
         }
       }
@@ -344,10 +355,9 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
           if (menuParamIndexRef == numAvailableParams - 1) menuParamIndexRef = 0;
           else menuParamIndexRef++;
           lcdNeedsUpdateRef = true;
-        } else if (buttonStateRef == 2) { // LEFT
-          if (menuParamIndexRef == 0) menuParamIndexRef = numAvailableParams - 1;
-          else menuParamIndexRef--;
-          lcdNeedsUpdateRef = true;
+        } else if (buttonStateRef == 2) {  // LEFT - добавить возврат в главное меню при выключенном редактировании
+            uiStateRef = UI_MAIN;
+            lcdNeedsUpdateRef = true;
         } else if (buttonStateRef == 5) { // SELECT
           editingParamRef = true;
           lcdNeedsUpdateRef = true;

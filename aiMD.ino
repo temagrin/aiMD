@@ -72,7 +72,7 @@ void loop() {
             case UI_EDIT_HIHAT:
                 displayHiHatEditMenu(deviceSettings.hihat, hiHatMenuIndex, editingHiHatParam, lcdNeedsUpdate);
                 break;
-            case MENU_EDIT_XTALK:
+            case UI_EDIT_XTALK:
                 displayXtalkMenu(deviceSettings, xtalkPadIndex, xtalkMenuParamIndex, editingXtalk);
                 break;
             case UI_CONFIRM_RESET:
