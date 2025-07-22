@@ -87,6 +87,7 @@ void displayMainMenu(uint8_t selectedItem) {
 void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t menuParamIdx, bool editingParam, bool &lcdNeedsUpdateRef) {
   const PadSettings &ps = deviceSettings.pads[padIdx];
   lcd.clear();
+  delay(3); 
   lcd.setCursor(0, 0);
   lcd.print("Input ");
   lcd.print(padIdx + 1);
@@ -496,9 +497,10 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
           uiStateRef = UI_MAIN;
           lcdNeedsUpdateRef = true;
         }
-      } else {if (buttonStateRef == 2 || buttonStateRef == 4) { // LEFT или RIGHT
+      } else {
+        if (buttonStateRef == 2 || buttonStateRef == 4) { // LEFT или RIGHT
     bool increment = (buttonStateRef == 4);
-    if (xtalkMenuParamIndex == 0) { // Редактируем xtalkThreshold (uint8_t, 0-127)
+    if (xtalkMenuParamIndex == 0) { // Редактируем xtalkThreshold
         if (increment) {
             if (ps.xtalkThreshold == 127) ps.xtalkThreshold = 0;
             else ps.xtalkThreshold++;
@@ -506,8 +508,7 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
             if (ps.xtalkThreshold == 0) ps.xtalkThreshold = 127;
             else ps.xtalkThreshold--;
         }
-    } else if (xtalkMenuParamIndex == 1) { // Редактируем xtalkCancelTime (uint16_t, 0-250 например)
-        // Для времени будем изменять с шагом, например, 5 мс
+    } else if (xtalkMenuParamIndex == 1) { // Редактируем xtalkCancelTime
         uint16_t step = 5;
         uint16_t maxTime = 250;
         uint16_t &timeParam = ps.xtalkCancelTime;
@@ -517,6 +518,10 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
             timeParam = (timeParam < step) ? maxTime : timeParam - step;
         }
     }
+    saveSettings(deviceSettingsRef);
+    lcdNeedsUpdateRef = true;
+} else if (buttonStateRef == 5) { // SELECT — выйти из редактирования
+    editingXtalk = false;
     saveSettings(deviceSettingsRef);
     lcdNeedsUpdateRef = true;
 }
