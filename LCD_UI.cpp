@@ -18,10 +18,6 @@ extern bool debugMode;
 extern unsigned long lastActivity;
 extern int8_t buttonState;
 
-// Глобальные переменные для состояний меню, которые должны сохраняться между вызовами
-// (они должны быть определены в одном .cpp файле, но доступны из других функций LCD_UI.cpp)
-static uint8_t mainMenuSelection = 0; // Для выбора в главном меню
-
 static uint8_t hiHatMenuIndex = 0;
 static bool editingHiHatParam = false;
 

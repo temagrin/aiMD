@@ -33,7 +33,7 @@ struct Settings {
 
 // Прототипы
 void initSettings(Settings &settings);
-void saveSettings(const Settings &settings);
+void saveSettings(Settings &settings);
 void loadSettings(Settings &settings);
 
 #endif

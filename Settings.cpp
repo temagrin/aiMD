@@ -23,8 +23,10 @@ void initSettings(Settings &settings) {
     settings.hihat.invert = false;
 }
 
-void saveSettings(const Settings &settings) {
+void saveSettings(Settings &settings) {
+    settings.magic = EEPROM_MAGIC;  // Гарантируем выставление магии
     EEPROM.put(SETTINGS_ADDR, settings);
+    delay(10);
 }
 
 void loadSettings(Settings &settings) {

@@ -5,6 +5,8 @@
 #include "Config.h"
 #include "Pads.h"
 
+extern uint8_t mainMenuSelection;
+
 void lcdInit();
 void displayMainMenu(uint8_t selectedItem);
 void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t menuParamIndex, bool editingParam, bool &lcdNeedsUpdate);
