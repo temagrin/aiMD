@@ -99,6 +99,13 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
   lcd.print("Input ");
   lcd.print(padIdx + 1);
 
+  static const CurveType allowedCurves[] = {
+      CURVE_LINEAR,
+      CURVE_EXPONENTIAL,
+      CURVE_LOG,
+      CURVE_MAX_VELOCITY
+  };
+
   uint8_t currentParamIndices[NUM_TOTAL_PAD_PARAMS]; // NUM_TOTAL_PAD_PARAMS из Config.h
   uint8_t numAvailableParams = 0;
 
@@ -438,31 +445,19 @@ void processUI(Settings &deviceSettingsRef, PadStatus padStatusRef[], int8_t &bu
               else { if (ps.threshold == 0) ps.threshold = 1023; else ps.threshold--; }
               break;
             case PARAM_CURVE: {
-                PadType allowedCurves[] = {CURVE_LINEAR, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_MAX_VELOCITY};
-                uint8_t curveCount = sizeof(allowedCurves) / sizeof(allowedCurves[0]);
-                int8_t curCurveIndex = -1;
-                for (uint8_t i = 0; i < curveCount; i++) {
-                    if (allowedCurves[i] == ps.curve) {
-                        curCurveIndex = i;
-                        break;
-                    }
-                }
-                if (curCurveIndex == -1)
-                    curCurveIndex = 0;
-
-                if (increment) {
-                    curCurveIndex++;
-                    if (curCurveIndex >= curveCount)
-                        curCurveIndex = 0;
-                } else {
-                    if (curCurveIndex == 0)
-                        curCurveIndex = curveCount - 1;
-                    else
-                        curCurveIndex--;
-                }
-                ps.curve = allowedCurves[curCurveIndex];
-                break;
-            }
+      const char* curveNames[] = {"Lin", "Exp", "Log", "MaxV"}; // Этот массив соответствует allowedCurves
+      uint8_t curveIndex = 0;
+      // Найдите индекс текущей кривой в массиве allowedCurves
+      for(uint8_t i = 0; i < sizeof(allowedCurves)/sizeof(allowedCurves[0]); i++) {
+    if (deviceSettingsRef.pads[editPadIndexRef].curve == allowedCurves[i]) {
+        curveIndex = i;
+        break;
+    }
+}
+      lcd.setCursor(9, 1);
+      lcd.print(curveNames[curveIndex]);
+      break;
+  }
             case PARAM_RIM_MUTE:
               ps.rimMute = !ps.rimMute;
               break;
