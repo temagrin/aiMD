@@ -5,7 +5,7 @@
 
 #include "Settings.h"
 #include <Arduino.h>
-
+extern bool isHiHatClosed;
 uint8_t readHiHatValueRaw();
 void processHiHatPedal(const HiHatSettings &hihatSettings);
 

@@ -21,6 +21,8 @@
 #define HIHAT_PEDAL_PIN A6
 
 #define MIDI_TX_PIN 1
+#define MIDI_CHANEL 10
+
 
 #define NUM_JACKS 10
 #define NUM_MUX_CHANNELS 16
@@ -39,11 +41,11 @@ enum PadType { PAD_DISABLED=0, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };
 enum CurveType { CURVE_LINEAR=0, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_MAX_VELOCITY};
 
 static const char* padTypeNames[] = {
-    "DISABLED",
-    "SINGLE",
+    "OFF",
+    "NORM",
     "DUAL",
-    "HIHAT",
-    "CYMBAL"
+    "HHAT",
+    "CYMB"
 };
 
 static const char* padCurveNames[] = {
@@ -94,12 +96,13 @@ enum PadParam {
   PARAM_SENSITIVITY,
   PARAM_THRESHOLD,
   PARAM_CURVE,
-  PARAM_RIM_MIDI,
-  PARAM_RIM_MUTE,
-  PARAM_TWO_ZONE_MODE,
-  PARAM_MUTE_BY_PIEZO,
   PARAM_SCANTIME,      
-  PARAM_MASKTIME, 
+  PARAM_MASKTIME,
+  PARAM_RIM_MUTE,
+  PARAM_RIM_MIDI,
+  PARAM_AHEAD_MIDI,
+  PARAM_ARIM_MIDI,
+  PARAM_CHOKE,
   NUM_TOTAL_PAD_PARAMS
 };
 

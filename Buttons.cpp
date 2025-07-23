@@ -20,7 +20,6 @@ void updateButtonState(int8_t &buttonState) {
         lastButtonChange = millis();
     }
     if ((millis() - lastButtonChange) > BUTTON_DEBOUNCE_MS) {
-        // Обновляем buttonState только если изменился или сброшен в 0
         if (buttonState != current) {
             buttonState = current;
         }

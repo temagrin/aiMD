@@ -13,8 +13,20 @@ static const char* hiHatParamNames[HIHAT_NUM_PARAMS] = {
     "Debounce"
 };
 
+
 static const char* allParamNames[NUM_TOTAL_PAD_PARAMS] = {
-  "Type", "HeadMidi", "Sens", "Thresh", "Curve", "ScanTime", "MaskTime", "RimMidi", "RimMute", "TwoZone", "MutePiezo"
+  "Type", 
+  "HdMidi", 
+  "Gain", 
+  "Thresh", 
+  "Curve",
+  "ScanTime", 
+  "MaskTime",
+  "MuteRim",
+  "RmMidi",
+  "aHdMidi"
+  "aRmMidi"
+  "Choke"
 };
 
 static const PadType allPadTypes[] = { PAD_DISABLED, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };

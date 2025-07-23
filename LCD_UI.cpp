@@ -7,9 +7,7 @@
 #include "Mux.h"
 #include "Pads.h"
 
-// Внешние переменные
 extern LiquidCrystal_I2C lcd;
-
 extern bool editingParam;
 extern uint8_t menuParamIndex;
 extern uint8_t editPadIndex;
@@ -18,30 +16,29 @@ extern bool lcdNeedsUpdate;
 extern bool debugMode;
 extern unsigned long lastActivity;
 extern int8_t buttonState;
-
 extern bool editingHiHatParam;
 extern uint8_t hiHatMenuIndex;
 extern bool editingXtalk;
 extern uint8_t xtalkPadIndex;
 extern uint8_t xtalkMenuParamIndex;
-
 extern uint8_t mainMenuSelection;
 
 static bool resetYesSelected = true;
 
-// Эти массивы должны быть определены до их использования
 const PadParamInfo padParams[] = {
     {PARAM_TYPE, "Type", PARAM_ENUM, [](const PadSettings &, uint8_t) { return true; }},
     {PARAM_HEAD_MIDI, "HeadMidi", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
     {PARAM_SENSITIVITY, "Sens", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
-    {PARAM_THRESHOLD, "Thrh", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
+    {PARAM_THRESHOLD, "Thresh", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
     {PARAM_CURVE, "Curve", PARAM_ENUM, [](const PadSettings &, uint8_t) { return true; }},
-    {PARAM_RIM_MIDI, "RimMidi", PARAM_INT, [](const PadSettings &, uint8_t idx) { return muxJackMap[idx][1] != -1; }},
-    {PARAM_RIM_MUTE, "RimMute", PARAM_BOOL, [](const PadSettings &, uint8_t idx) { return muxJackMap[idx][1] != -1; }},
-    {PARAM_TWO_ZONE_MODE, "TwoZone", PARAM_BOOL, [](const PadSettings &, uint8_t idx) { return muxJackMap[idx][1] != -1; }},
-    {PARAM_MUTE_BY_PIEZO, "Choke", PARAM_BOOL, [](const PadSettings &, uint8_t idx) { return muxJackMap[idx][1] != -1; }},
     {PARAM_SCANTIME, "ScanTime", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
     {PARAM_MASKTIME, "MaskTime", PARAM_INT, [](const PadSettings &, uint8_t) { return true; }},
+    {PARAM_RIM_MUTE, "RimMute", PARAM_BOOL, [](const PadSettings &, uint8_t idx) { return idx>3; }},
+    {PARAM_RIM_MIDI, "RimMidi", PARAM_INT, [](const PadSettings &, uint8_t idx) { return idx>3; }},
+    {PARAM_ARIM_MIDI, "ARimMidi", PARAM_INT, [](const PadSettings &, uint8_t idx) { return idx>4; }},
+    {PARAM_AHEAD_MIDI, "AHdMidi", PARAM_INT, [](const PadSettings &, uint8_t idx) { return idx>4; }},
+    {PARAM_CHOKE, "Choke", PARAM_BOOL, [](const PadSettings &, uint8_t idx) { return idx>4; }},
+    
 };
 
 const char* curveNames[] = {"Lin", "Exp", "Log", "MaxV"};
@@ -111,7 +108,6 @@ void MainMenu::render() {
     }
 }
 
-// Реализация isActive() для MainMenu
 bool MainMenu::isActive() const {
     return uiState_ == UI_MAIN;
 }
@@ -121,7 +117,7 @@ void MainMenu::handleAction(UIAction action) {
     case ACT_MOVE_ACTIVE_ITEM_PREV: onActiveItemPrev(); break;
     case ACT_MOVE_ACTIVE_ITEM_NEXT: onActiveItemNext(); break;
     case ACT_SAVE: onSave(); break;
-    case ACT_BACK: break; // Нет действия "назад" для главного меню
+    case ACT_BACK: break;
     default: break;
     }
 }
@@ -245,9 +241,8 @@ void EditPadMenu::changeParameter(bool increment) {
             if (curTypeIndex < 0) curTypeIndex = allowedCount - 1;
         }
         ps.type = allowedTypes[curTypeIndex];
-        if (ps.type != PAD_DUAL && ps.type != PAD_HIHAT && ps.type != PAD_CYMBAL) {
-            ps.twoZoneMode = false;
-            ps.muteByPiezo = false;
+        if (ps.type != PAD_HIHAT && ps.type != PAD_CYMBAL) {
+            ps.choke = false;
         }
         break;
     }
@@ -256,6 +251,12 @@ void EditPadMenu::changeParameter(bool increment) {
         break;
     case PARAM_RIM_MIDI:
         ps.midiRimNote = increment ? (ps.midiRimNote + 1) % 128 : (ps.midiRimNote == 0 ? 127 : ps.midiRimNote - 1);
+        break;
+    case PARAM_AHEAD_MIDI:
+        ps.altHeadNote = increment ? (ps.altHeadNote + 1) % 128 : (ps.altHeadNote == 0 ? 127 : ps.altHeadNote - 1);
+        break;
+    case PARAM_ARIM_MIDI:
+        ps.altRimNote = increment ? (ps.altRimNote + 1) % 128 : (ps.altRimNote == 0 ? 127 : ps.altRimNote - 1);
         break;
     case PARAM_SENSITIVITY:
         ps.sensitivity = increment ? (ps.sensitivity + 1) % 128 : (ps.sensitivity == 0 ? 127 : ps.sensitivity - 1);
@@ -289,11 +290,8 @@ void EditPadMenu::changeParameter(bool increment) {
     case PARAM_RIM_MUTE:
         ps.rimMute = !ps.rimMute;
         break;
-    case PARAM_TWO_ZONE_MODE:
-        ps.twoZoneMode = muxJackMap[editPadIndex_][1] != -1 ? !ps.twoZoneMode : false;
-        break;
-    case PARAM_MUTE_BY_PIEZO:
-        ps.muteByPiezo = muxJackMap[editPadIndex_][1] != -1 ? !ps.muteByPiezo : false;
+    case PARAM_CHOKE:
+        ps.choke = muxJackMap[editPadIndex_][1] != -1 ? !ps.choke : false;
         break;
     }
 }
@@ -395,7 +393,10 @@ void EditHiHatMenu::render() {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("HiHat Pedal"); // Изменил на более короткое название
-
+    if (editingHiHatParam_) {
+        lcd.setCursor(15, 0);
+        lcd.print("*");
+    } 
     char buf[17];
     const char *paramName = hiHatParamNames[hiHatMenuIndex_];
     char valStr[10]; // Буфер для строкового представления значения
@@ -414,9 +415,7 @@ void EditHiHatMenu::render() {
         default: snprintf(valStr, sizeof(valStr), "N/A"); break;
     }
 
-    // Формируем вторую строку
-    // Используем форматирование для выравнивания, чтобы поместилось на 16 символов
-    snprintf(buf, sizeof(buf), "%-10s:%5s%s", paramName, valStr, editingHiHatParam_ ? "*" : "");
+    snprintf(buf, sizeof(buf), "%-10s: %4s", paramName, valStr);
     lcd.setCursor(0, 1);
     lcd.print(buf);
 
@@ -515,6 +514,11 @@ void EditXtalkMenu::render() {
     lcd.setCursor(0, 0);
     lcd.print(line1);
     
+    if (editingXtalk_) {
+        lcd.setCursor(15, 0);
+        lcd.print("*");
+    }
+    
     char buf[17];
     PadSettings &ps = deviceSettings_.pads[xtalkPadIndex_];
     const char *paramName = nullptr;
@@ -535,7 +539,8 @@ void EditXtalkMenu::render() {
         break;
     }
 
-    snprintf(buf, sizeof(buf), "%s: %d %s", paramName, val, editingXtalk_ ? "*" : "");
+    snprintf(buf, sizeof(buf), "%-10s: %4d", paramName, val);
+    
     lcd.setCursor(0, 1);
     lcd.print(buf);
 
@@ -627,7 +632,7 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
     const PadSettings &ps = deviceSettings.pads[padIdx];
 
     // Первая строка: номер пэда
-    snprintf(line, sizeof(line), "Pad %d", padIdx + 1);
+    snprintf(line, sizeof(line), "Input %d", padIdx + 1);
     lcd.setCursor(0, 0);
     lcd.print(line);
 
@@ -671,12 +676,13 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
             // Числовое значение параметра
             switch (paramInfo.paramIndex) {
                 case PARAM_HEAD_MIDI: valueNum = ps.midiHeadNote; break;
+                case PARAM_AHEAD_MIDI: valueNum = ps.altHeadNote; break;
                 case PARAM_RIM_MIDI: valueNum = ps.midiRimNote; break;
+                case PARAM_ARIM_MIDI: valueNum = ps.altRimNote; break;
                 case PARAM_SENSITIVITY: valueNum = ps.sensitivity; break;
                 case PARAM_THRESHOLD: valueNum = ps.threshold; break;
                 case PARAM_RIM_MUTE: valueNum = ps.rimMute ? 1 : 0; break;
-                case PARAM_TWO_ZONE_MODE: valueNum = ps.twoZoneMode ? 1 : 0; break;
-                case PARAM_MUTE_BY_PIEZO: valueNum = ps.muteByPiezo ? 1 : 0; break;
+                case PARAM_CHOKE: valueNum = ps.choke ? 1 : 0; break;
                 case PARAM_SCANTIME: valueNum = ps.scantime; break;
                 case PARAM_MASKTIME: valueNum = ps.masktime; break;
                 default: valueNum = 0; break;
@@ -686,9 +692,12 @@ void displayPadEditMenu(const Settings &deviceSettings, uint8_t padIdx, uint8_t 
     } else {
         snprintf(valueStr, sizeof(valueStr), "--");
     }
-
+    if (editingParam) {
+        lcd.setCursor(15, 0);
+        lcd.print("*");
+    }
     // Формируем и выводим вторую строку
-    snprintf(line, sizeof(line), "%s: %s %s", paramName, valueStr, editingParam ? "*" : "");
+    snprintf(line, sizeof(line), "%-9s: %5s", paramName, valueStr);
     lcd.setCursor(0, 1);
     lcd.print(line);
 

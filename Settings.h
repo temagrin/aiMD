@@ -22,6 +22,8 @@ struct PadSettings {
     PadType type;
     uint8_t midiHeadNote;
     uint8_t midiRimNote;
+    uint8_t altHeadNote;
+    uint8_t altRimNote;
     uint8_t sensitivity;
     uint16_t threshold;
     uint16_t scantime;
@@ -32,8 +34,7 @@ struct PadSettings {
     uint16_t xtalkCancelTime;   // Время отмены XTALK в мс
 
     bool rimMute;
-    bool twoZoneMode;
-    bool muteByPiezo;
+    bool choke;
 };
 
 struct Settings {

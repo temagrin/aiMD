@@ -2,7 +2,7 @@
 #include "HiHatPedal.h"
 #include "MIDISender.h"
 #include "Config.h"
-
+bool isHiHatClosed = false; 
 uint8_t lastHiHatValue = 0;
 unsigned long lastHiHatCCSend = 0;
 
@@ -22,7 +22,7 @@ void processHiHatPedal(const HiHatSettings &hihatSettings) {
     val = constrain(val, 0, 127);
 
     if(val != lastHiHatValue) {
-        midiSendCC(9, 4, val);
+        midiSendCC(MIDI_CHANEL, 4, val);
         lastHiHatValue = val;
         lastHiHatCCSend = millis();
     }
@@ -30,10 +30,18 @@ void processHiHatPedal(const HiHatSettings &hihatSettings) {
     int16_t diff = (int16_t)raw - (int16_t)lastRawValue;
 
     if (diff < -(int16_t)hihatSettings.hitThresholdRaw && (millis() - lastHitTime) > hihatSettings.debounceTimeMs) {
-        midiSendNoteOn(9, hihatSettings.hitNote, hihatSettings.hitVelocity);
-        midiSendNoteOff(9, hihatSettings.hitNote, 0);
+        midiSendNoteOn(MIDI_CHANEL, hihatSettings.hitNote, hihatSettings.hitVelocity);
+        midiSendNoteOff(MIDI_CHANEL, hihatSettings.hitNote, 0);
 
         lastHitTime = millis();
+    }
+
+    const uint8_t closeThreshold = 5; // допустимый разброс по CC
+
+    if (abs(val - hihatSettings.ccClosed) <= closeThreshold) {
+        isHiHatClosed = true;
+    } else {
+        isHiHatClosed = false;
     }
 
     lastRawValue = raw;

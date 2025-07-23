@@ -1,5 +1,4 @@
 //файл aiMD.ino 
-
 #include <LiquidCrystal_I2C.h>
 #include <Arduino.h>
 #include "Settings.h"
@@ -166,7 +165,6 @@ void setupPins() {
   pinMode(MUX_S1, OUTPUT);
   pinMode(MUX_S2, OUTPUT);
   pinMode(MUX_S3, OUTPUT);
-  
   pinMode(BUTTONS_PIN, INPUT);    
   pinMode(HIHAT_PEDAL_PIN, INPUT);
   uiState = UI_MAIN;
@@ -214,11 +212,10 @@ void loop() {
         }
     }
 
-    // Остальное покавыключено для отладки меню
-    //for (uint8_t i = 0; i < NUM_JACKS; i++) {
-    //    scanPad(deviceSettings.pads[i], padStatus[i], i);
-    //}
-    //processHiHatPedal(deviceSettings.hihat);
+    for (uint8_t i = 0; i < NUM_JACKS; i++) {
+       scanPad(deviceSettings.pads[i], padStatus[i], i);
+    }
+    processHiHatPedal(deviceSettings.hihat);
 
-    delay(1);
+    delayMicroseconds(100);
 }

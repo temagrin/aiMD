@@ -34,3 +34,15 @@ void midiSendCC(byte channel, byte ccNum, byte value) {
         Serial.write(value);
     }
 }
+
+void midiSendPolyAftertouch(byte channel, byte note, byte value) {
+        Serial.write(0xA0 | (channel & 0x0F)); // Status byte: 0xA0-0xAF (A0 for channel 0)
+        Serial.write(note);                    // Data byte 1: Note Number (0-127)
+        Serial.write(value);                   // Data byte 2: Pressure Value (0-127)
+    
+}
+
+void midiSendChannelAftertouch(byte channel, byte value) {
+        Serial.write(0xD0 | (channel & 0x0F)); // Status byte: 0xD0-0xDF
+        Serial.write(value);                   // Data byte 1: Pressure Value (0-127)
+}
