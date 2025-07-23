@@ -1,4 +1,15 @@
+// библиотечные инклуды
+#include <LiquidCrystal_I2C.h>
 
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+bool lcdNeedsUpdate = true;
+bool editingParam = false;
+uint8_t menuParamIndex = 0;
+uint8_t editPadIndex = 0;
+uint8_t mainMenuSelection = 0;
+
+// проектные инклуды
 #include "Config.h"
 #include "Mux.h"
 #include "Pads.h"
@@ -9,18 +20,10 @@
 #include "UIAction.h"
 #include "LCD_UI.h"
 
-
-
-
-UIState uiState = UI_MAIN;
-bool lcdNeedsUpdate = true;
-bool editingParam = false;
-uint8_t menuParamIndex = 0;
-uint8_t editPadIndex = 0;
-uint8_t mainMenuSelection = 0;
-
 Settings deviceSettings;
 PadStatus padStatus[NUM_JACKS];
+UIState uiState = UI_MAIN;
+
 
 MainMenu mainMenu(mainMenuSelection, uiState, lcdNeedsUpdate);
 EditPadMenu editPadMenu(

@@ -1,10 +1,10 @@
-#include <LiquidCrystal_I2C.h>
-// LCD_UI.cpp
+#ifndef LCD_UI_H
+#define LCD_UI_H
+
 #include "UIAction.h"
 #include "Mux.h"
 
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 extern void saveSettings(const Settings &);
 extern void initSettings(Settings &);
@@ -472,3 +472,5 @@ void ConfirmResetMenu::render() {
 }
 
 bool ConfirmResetMenu::isActive() const { return uiState_ == UI_CONFIRM_RESET; }
+
+#endif // LCD_UI_H

@@ -30,7 +30,6 @@ extern uint8_t mainMenuSelection;
 
 static bool resetYesSelected = true; // Для UI_CONFIRM_RESET
 
-static const char* curveNames[] = {"Lin", "Exp", "Log", "MaxV"};
 
 // Прототипы внешних функций из Settings.cpp
 extern void saveSettings(const Settings &settings);
