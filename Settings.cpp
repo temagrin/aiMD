@@ -28,24 +28,25 @@ void initSettings(Settings &settings) {
     settings.hihat.ccOpen = 127;
     settings.hihat.ccStep = 64;
     settings.hihat.invert = false;
+    settings.hihat.hitNote = 46;           
+    settings.hihat.hitVelocity = 127;
+    settings.hihat.hitThresholdRaw = 100;
+    settings.hihat.debounceTimeMs = 50;
 }
 
 void saveSettings(Settings &settings) {
     settings.magic = EEPROM_MAGIC; // Всегда ставим magic перед записью
     EEPROM.put(SETTINGS_ADDR, settings);
     delay(10); // Даем время завершить запись
-    Serial.println(F("Settings saved to EEPROM"));
 }
 
 void loadSettings(Settings &settings) {
     EEPROM.get(SETTINGS_ADDR, settings);
-    Serial.print(F("Loaded magic: 0x"));
-    Serial.println(settings.magic, HEX);
+    //Serial.print(F("Loaded magic: 0x"));
+    //Serial.println(settings.magic, HEX);
     if (settings.magic != EEPROM_MAGIC) {
-        Serial.println(F("Magic mismatch, initializing defaults"));
+        //Serial.println(F("Magic mismatch, initializing defaults"));
         initSettings(settings);
         saveSettings(settings);
-    } else {
-        Serial.println(F("Settings loaded successfully"));
-    }
+    } 
 }

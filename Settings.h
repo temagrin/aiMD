@@ -12,6 +12,10 @@ struct HiHatSettings {
     uint8_t ccOpen;
     uint8_t ccStep;
     bool invert;
+    uint8_t hitNote;           // MIDI нота хлопка
+    uint8_t hitVelocity;       // Скорость ноты хлопка
+    uint16_t hitThresholdRaw;  // Порог резкого изменения для детекции (например, 100)
+    unsigned long debounceTimeMs;
 };
 
 struct PadSettings {

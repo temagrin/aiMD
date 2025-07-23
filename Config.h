@@ -38,6 +38,22 @@
 enum PadType { PAD_DISABLED=0, PAD_SINGLE, PAD_DUAL, PAD_HIHAT, PAD_CYMBAL };
 enum CurveType { CURVE_LINEAR=0, CURVE_EXPONENTIAL, CURVE_LOG, CURVE_MAX_VELOCITY};
 
+static const char* padTypeNames[] = {
+    "DISABLED",
+    "SINGLE",
+    "DUAL",
+    "HIHAT",
+    "CYMBAL"
+};
+
+static const char* padCurveNames[] = {
+    "LIN",
+    "EXP",
+    "LOG",
+    "MAX"
+};
+
+
 enum MainMenuItems {
     MENU_EDIT_PADS = 0,
     MENU_EDIT_HIHAT,
@@ -59,7 +75,17 @@ enum HiHatParam {
   HIHAT_CC_OPEN,
   HIHAT_CC_STEP,
   HIHAT_INVERT,
+  HIHAT_HIT_NOTE,
+  HIHAT_HIT_VELOCITY,
+  HIHAT_HIT_THRESHOLD_RAW,
+  HIHAT_DEBOUNCE_TIME_MS,
   HIHAT_NUM_PARAMS
+};
+
+enum ParamType {
+    PARAM_ENUM = 0,
+    PARAM_INT,
+    PARAM_BOOL
 };
 
 enum PadParam {
@@ -72,6 +98,8 @@ enum PadParam {
   PARAM_RIM_MUTE,
   PARAM_TWO_ZONE_MODE,
   PARAM_MUTE_BY_PIEZO,
+  PARAM_SCANTIME,      
+  PARAM_MASKTIME, 
   NUM_TOTAL_PAD_PARAMS
 };
 
