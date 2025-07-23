@@ -1,3 +1,4 @@
+// файл Pads.cpp
 #include "Pads.h"
 #include "Mux.h"
 #include "MIDISender.h"

@@ -1,3 +1,5 @@
+// файл Buttons.h
+
 #ifndef BUTTONS_H
 #define BUTTONS_H
 

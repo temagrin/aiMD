@@ -1,3 +1,5 @@
+// файл  Buttons.cpp
+
 #include "Buttons.h"
 #include "Config.h"
 

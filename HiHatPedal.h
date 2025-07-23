@@ -1,3 +1,5 @@
+// файл HiHatPedal.h
+
 #ifndef HIHATPEDAL_H
 #define HIHATPEDAL_H
 

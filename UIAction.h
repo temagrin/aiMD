@@ -1,3 +1,5 @@
+// файл UIAction.h
+
 #ifndef UI_ACTION_H
 #define UI_ACTION_H
 

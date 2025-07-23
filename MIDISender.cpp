@@ -1,3 +1,4 @@
+// файл MIDISender.cpp
 #include "MIDISender.h"
 
 extern bool debugMode;

@@ -1,3 +1,5 @@
+// файл HiHatPedal.cpp 
+
 #include "HiHatPedal.h"
 #include "MIDISender.h"
 #include "Config.h"

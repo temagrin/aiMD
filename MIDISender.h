@@ -1,3 +1,4 @@
+// файл MIDISender.h
 #ifndef MIDISENDER_H
 #define MIDISENDER_H
 

@@ -1,3 +1,5 @@
+// файл aiMD.ino 
+
 // библиотечные инклуды
 #include <LiquidCrystal_I2C.h>
 

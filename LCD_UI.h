@@ -1,3 +1,5 @@
+// файл LCD_UI.h
+
 #ifndef LCD_UI_H
 #define LCD_UI_H
 

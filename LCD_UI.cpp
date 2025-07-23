@@ -1,5 +1,7 @@
-#include "LCD_UI.h"
+// файл LCD_UI.cpp
 #include <LiquidCrystal_I2C.h>
+
+#include "LCD_UI.h"
 #include "Settings.h"   // Нужен доступ к структуре Settings
 #include "Config.h"     // Нужен доступ к константам и энумам
 #include "Mux.h"        // Нужен для JackMuxMap

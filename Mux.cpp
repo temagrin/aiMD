@@ -1,3 +1,4 @@
+// файл Mux.cpp
 #include "Mux.h"
 #include <Arduino.h>
 

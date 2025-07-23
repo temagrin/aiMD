@@ -1,3 +1,4 @@
+// файл Pads.h
 #ifndef PADS_H
 #define PADS_H
 

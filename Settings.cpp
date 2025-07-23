@@ -1,3 +1,4 @@
+// файл Settings.cpp
 #include "Settings.h"
 #include <EEPROM.h>
 #include <Arduino.h> // Для delay()
